@@ -1,0 +1,28 @@
+---
+- name: Add Admin User
+  user:
+    name: '{{ admin_username }}'
+    groups: sudo
+    append: yes
+    password: '{{ admin_password }}'
+    shell: /bin/bash
+
+# Common Tasks
+- name: Enable Remote (person) Access to Admin
+  authorized_key:
+    user: '{{ admin_username }}'
+    key: "{{ lookup('file', local_authorized_key) }}"
+
+- name: Add Application User
+  user:
+    name: '{{ appuser_username }}'
+    groups: ssh
+    password: '{{ appuser_password }}'
+    shell: /bin/bash
+    generate_ssh_key: yes
+    ssh_key_bits: 4096
+
+- name: Enable Remote (Person) Access to Appuser
+  authorized_key:
+    user: '{{ appuser_username }}'
+    key: "{{ lookup('file', local_authorized_key) }}"

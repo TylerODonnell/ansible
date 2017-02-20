@@ -1,0 +1,51 @@
+---
+- name: Install Nginx
+  yum:
+    pkg: nginx
+    state: installed
+    update_cache: true
+  notify:
+    - Start Nginx
+
+- name: Add Nginx Config
+  copy:
+    src: nginx_rpm.conf
+    dest: /etc/nginx/nginx.conf
+    owner: root
+    group: root
+
+- name: Add Nginx Mime Types
+  copy:
+    src: mime.types
+    dest: /etc/nginx/mime.types
+    owner: root
+    group: root
+
+- name: Ensure Snippets Dir Exists
+  file:
+    path: /etc/nginx/snippets
+    state: directory
+    owner: root
+    group: root
+
+- name: Add Fastcgi-PHP
+  copy:
+    src: fastcgi-php.conf
+    dest: /etc/nginx/snippets/fastcgi-php.conf
+    owner: root
+    group: root
+
+- name: Start/Enable Nginx
+  service:
+    name: nginx
+    state: running
+    enabled: yes
+
+- name: Add Loadbalancer Config
+  template:
+    src: lb.conf.j2
+    dest: /etc/nginx/conf.d/lb.conf
+    owner: root
+    group: root
+  notify:
+    - Reload Nginx

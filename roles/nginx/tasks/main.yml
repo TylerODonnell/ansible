@@ -1,0 +1,132 @@
+---
+- name: Add Nginx Repository
+  apt_repository:
+    repo: 'ppa:nginx/stable'
+    state: present
+  ignore_errors: yes
+
+- name: Install Nginx
+  apt:
+    pkg: nginx
+    state: installed
+    update_cache: true
+  notify:
+    - Start Nginx
+
+- name: Add H5BP Config
+  copy:
+    src: h5bp
+    dest: /etc/nginx
+    owner: root
+    group: root
+  tags:
+    - configuration
+
+- name: Add Nginx Config
+  copy:
+    src: nginx.conf
+    dest: /etc/nginx/nginx.conf
+    owner: root
+    group: root
+  tags:
+    - configuration
+
+- name: Add Nginx Mime Types
+  copy:
+    src: mime.types
+    dest: /etc/nginx/mime.types
+    owner: root
+    group: root
+  tags:
+    - configuration
+
+- name: Ensure Snippets Dir Exists
+  file:
+    path: /etc/nginx/snippets
+    state: directory
+    owner: root
+    group: root
+  tags:
+    - configuration
+
+- name: Add Fastcgi-PHP
+  copy:
+    src: fastcgi-php.conf
+    dest: /etc/nginx/snippets/fastcgi-php.conf
+    owner: root
+    group: root
+  tags:
+    - configuration
+
+- name: Create SSL Dir
+  file:
+    path: '/etc/nginx/ssl'
+    recurse: yes
+    state: directory
+    owner: 'root'
+    group: 'root'
+
+- name: nginx | generate ssl forward secrecy key
+  command: openssl dhparam -out /etc/nginx/ssl/dhparam.pem 2048 creates=/etc/nginx/ssl/dhparam.pem
+
+- name: nginx | check ssl forward secrecy key
+  file: path=/etc/nginx/ssl/dhparam.pem owner=root group=root mode=0600
+
+- name: Disable Default Site
+  file:
+    dest: /etc/nginx/sites-enabled/default
+    state: absent
+  tags:
+    - configuration
+
+- name: Add Site Config
+  template:
+    src: "{{ app_name }}.conf.j2"
+    dest: /etc/nginx/sites-available/{{ domain }}.conf
+    owner: root
+    group: root
+  tags:
+    - configuration
+  notify:
+    - Reload Nginx
+
+- name: Enable Site Config
+  file:
+    src: /etc/nginx/sites-available/{{ domain }}.conf
+    dest: /etc/nginx/sites-enabled/{{ domain }}.conf
+    state: link
+  tags:
+    - configuration
+  notify:
+    - Reload Nginx
+
+- name: Add No Default Config
+  copy:
+    src: no-default
+    dest: /etc/nginx/sites-available
+    owner: root
+    group: root
+  tags:
+    - configuration
+
+- name: Enable Site Config
+  file:
+    src: /etc/nginx/sites-available/no-default
+    dest: /etc/nginx/sites-enabled/no-default
+    state: link
+  notify:
+    - Reload Nginx
+  tags:
+    - configuration
+
+# Allow app user to reload php-fpm
+- name: Update Sudoers
+  lineinfile:
+    dest: /etc/sudoers.d/php-fpm
+    owner: root
+    group: root
+    mode: 0440
+    line: "{{ appuser_username }} ALL=NOPASSWD:/usr/sbin/service php5-fpm reload"
+    state: present
+    create: yes
+    validate: 'visudo -cf %s'

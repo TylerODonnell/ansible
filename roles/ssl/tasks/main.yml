@@ -1,0 +1,28 @@
+---
+
+- name: Create SSL Directry
+  file:
+    dest: "/etc/ssl/{{ domain }}"
+    mode: 700
+    state: directory
+    owner: root
+    group: root
+  register: ssldir
+
+- name: Upload Unencrypted Key File
+  when: ssldir|success
+  no_log: True
+  copy:
+    content: "{{ ssl_key }}"
+    dest: "/etc/ssl/{{ domain }}/{{ domain }}.key"
+    owner: root
+    group: root
+
+- name: Upload Unencrypted Cert File
+  when: ssldir|success
+  no_log: True
+  copy:
+    content: "{{ ssl_crt }}"
+    dest: "/etc/ssl/{{ domain }}/{{ domain }}.crt"
+    owner: root
+    group: root

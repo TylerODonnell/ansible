@@ -1,0 +1,28 @@
+---
+- name: Add New Relic Repository
+  apt_repository:
+    repo: deb http://apt.newrelic.com/debian/ newrelic non-free
+    state: present
+
+- name: Add New Relic Signing Key
+  apt_key:
+    url: https://download.newrelic.com/548C16BF.gpg
+    state: present
+
+- name: Update Repositories
+  apt:
+    name: newrelic-sysmond
+    update_cache: yes
+    state: present
+
+- name: Add New Relic Config
+  template:
+    src: nrsysmond.cfg.j2
+    dest: /etc/newrelic/nrsysmond.cfg
+    owner: newrelic
+    group: newrelic
+
+- name: Restart New Relic
+  service:
+    name: newrelic-sysmond
+    state: restarted

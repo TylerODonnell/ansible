@@ -1,0 +1,48 @@
+---
+- name: Add PHP Repository if Ubuntu
+  apt_repository:
+    repo: 'ppa:ondrej/php5-5.6'
+    state: present
+  ignore_errors: yes
+
+- name: Install PHP and PHP-FPM
+  apt:
+    pkg: '{{ item }}'
+    state: installed
+    update_cache: yes
+  with_items:
+   - php5-fpm
+   - php5-cli
+   - php5-pgsql
+   - php5-mysql
+   - php5-sqlite
+   - php5-curl
+   - php5-gd
+   - php5-mcrypt
+   - php5-memcached
+   - php5-intl
+   - php5-imap
+  notify:
+    - Start PHP5-FPM
+
+- name: Add PHP-FPM Resource Pool
+  template:
+    src: www.conf_deb.j2
+    dest: /etc/php5/fpm/pool.d/www.conf
+  notify:
+    - Restart PHP5-FPM
+  tags:
+    - configuration
+
+# Generic
+- name: Install Composer
+  shell: curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin creates=/usr/local/bin/composer.phar
+
+- name: Rename composer.phar to composer
+  shell: mv /usr/local/bin/composer.phar /usr/local/bin/composer creates=/usr/local/bin/composer
+
+- name: Make Composer Executable
+  shell: chmod a+x /usr/local/bin/composer
+
+- name: Composer Self Update
+  shell: /usr/local/bin/composer self-update

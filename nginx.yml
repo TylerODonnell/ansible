@@ -1,0 +1,6 @@
+---
+- hosts: all
+  sudo: yes
+  user: admin
+  roles:
+   - nginx

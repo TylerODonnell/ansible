@@ -1,0 +1,33 @@
+---
+- name: Install MySQL
+  apt: pkg={{ item }} state=installed
+  with_items:
+   - mysql-server-5.6
+   - python-mysqldb
+  notify:
+    - Start MySQL
+
+- name: Copy the my.cnf file
+  template: src=my.cnf.j2 dest=/etc/mysql/my.cnf
+  notify:
+   - Restart MySQL
+
+- name: Remove Anonymous Users
+  mysql_user: name='' host={{ item }} state=absent
+  with_items:
+   - localhost
+
+- name: Remove Test Database
+  mysql_db: name=test state=absent
+
+- name: Create Databases
+  mysql_db: name={{ item }} state=present
+  with_items: databases
+  when: databases|lower() != 'none'
+
+- name: Update MySQL Root Password for All root Accounts
+  mysql_user: name=root host={{ item }} password={{ db_root_pass }}
+  with_items:
+   - 127.0.0.1
+   - ::1
+   - localhost

@@ -1,0 +1,15 @@
+---
+- hosts: all
+  sudo: yes
+  user: root
+  roles:
+   - base
+   - fail2ban
+   - nginx
+   - php7
+   - ssh
+   - ssl
+   - swap
+   - user
+   - app
+   - ufw

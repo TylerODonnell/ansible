@@ -1,0 +1,14 @@
+---
+# Debian/Ubuntu
+- name: Start PHP5-FPM
+  service: name=php5-fpm state=started
+
+- name: Restart PHP5-FPM
+  service: name=php5-fpm state=restarted
+
+# RedHat/CentOS
+- name: Start PHP-FPM
+  service: name=php-fpm state=started
+
+- name: Restart PHP-FPM
+  service: name=php-fpm state=restarted

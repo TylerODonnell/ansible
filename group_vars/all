@@ -1,0 +1,63 @@
+---
+# User that will run and
+# deploy the application
+appuser_username: appuser
+
+# An admin user which will
+# be allowed to run sudo commands
+admin_username: admin
+
+# Domain
+domain: app.com
+
+# The name of our application
+# (machine-readable)
+app_name: app
+
+# Web Server Config
+app_env: production
+
+# User passwords for our two users
+# Password used here: serialapp
+#   generated via `mkpasswd --method=SHA-512`
+#   @link http://docs.ansible.com/ansible/faq.html#how-do-i-generate-crypted-passwords-for-the-user-module
+admin_password:   ''
+appuser_password: ''
+
+# Your local public key, e.g. ~/.ssh/id_rsa.pub
+# This will be added to the "authorized_keys" file on
+# every server, so we can SSH into those servers from our
+# local machines (e.g. your laptop)
+local_authorized_key: '~/.ssh/id_rsa.pub'
+
+# MySQL
+db_root_pass: root
+databases:
+  - app
+
+# Postgresql
+postgresql_database: some_database
+postgresql_username: some_user
+postgresql_password: some_password
+
+# New Relic API Key
+new_relic_key: 1234567890abcdefghijklmnopqrstuvwxyz
+
+# vars file for aws
+access_key: 'AAA'
+secret_key: 'BBB'
+region: us-east-1
+format: json
+bucket_name: some_bucket
+db_name: some_db
+
+# Lets Encrypt
+
+
+# SSL Keys
+ssl_key: |
+    -----BEGIN RSA PRIVATE KEY-----
+    -----END RSA PRIVATE KEY-----
+ssl_crt: |
+    -----BEGIN CERTIFICATE-----
+    -----END CERTIFICATE-----
